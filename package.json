@@ -1,13 +1,13 @@
 {
   "name": "ec2-toggle",
   "version": "1.0.0",
-  "description": "toggle Available Ec2 instances",
+  "description": "Start or stop an ec2 instance manually using aws lambda.",
   "main": "index.js",
   "scripts": {
     "format": "prettier --write src/**/*.{js,jsx} --config ./.prettierrc",
     "lint": "npx eslint **/*.js --fix",
     "force-deploy": "serverless deploy",
-    "deploy": "npm run format && npm run lint && npm run deploy"
+    "deploy": "npm run format && npm run lint && npm run force-deploy"
    },
   "type": "module",
   "author": "MUHAMMED YAZEEN AN",

@@ -6,14 +6,15 @@ provider:
   runtime: nodejs18.x
 
 functions:
+  # Lists all EC2 instances in a specified region, including instance name, ID, region, and status.
   ListInstances:
     handler: src/handler/ListInstances.handler
     url: true
-
-  ToggleInstance:
-    handler: src/handler/ToggleInstance.handler
+  # Switches the current state of an EC2 instance from start to stop and vice versa.
+  startOrStopAnInstance :
+    handler: src/handler/startOrStopAnInstance .handler
     url: true
-
+  # Checks every hour if the network activity is less than 0, and stops the server if the condition is met
   StopInstancesCron:
     handler: src/cron/stopInstances.handler
     events:

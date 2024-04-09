@@ -1,6 +1,16 @@
-# Serverless Framework AWS NodeJS Example
+# Toggle EC2 instance 
+Start or stop an ec2 instance manually using aws lambda.
+brief overview of each function within the Ec2Toggle service:
 
-This template demonstrates how to deploy a NodeJS function running on AWS Lambda using the traditional Serverless Framework. The deployed function does not include any event definitions as well as any kind of persistence (database). For more advanced configurations check out the [examples repo](https://github.com/serverless/examples/) which includes integrations with SQS, DynamoDB or examples of functions that are triggered in `cron`-like manner. For details about configuration of specific `events`, please refer to our [documentation](https://www.serverless.com/framework/docs/providers/aws/events/).
+- #### ListInstances
+    - Purpose: List all EC2 instance information in all regions, including details such as instance name, ID, region, and status. This information is later passed to the startOrStopAnInstance  function to start/stop an instance manually.
+
+- #### startOrStopAnInstance 
+    - Purpose: Switches the current state of a given EC2 instance from start to stop  an instance manually and vice versa(event include instanceId and region).
+
+- #### StopInstancesCron
+    - Purpose: Get all the instances from all the regions and check if the network activity of each instance is less than zero. If it is zero, deactivate the instance.
+    - Event: Scheduled to run every hour (rate(1 hour)).
 
 ## Usage
 
@@ -17,7 +27,7 @@ $ serverless deploy
 After successful deployment, you can invoke the deployed function by using the following command:
 
 ```bash
-serverless invoke --function hello
+serverless invoke --function ListInstances
 ```
 
 ### Local development
@@ -25,8 +35,8 @@ serverless invoke --function hello
 You can invoke your function locally by using the following command:
 
 ```bash
-serverless invoke local --function hello
-serverless invoke local --function hello -p event.json
+serverless invoke local --function ListInstances
+serverless invoke local --function startOrStopAnInstance  -p event.json
 ```
 
 Which should result in response similar to the following:
@@ -34,6 +44,7 @@ Which should result in response similar to the following:
 ```
 {
     "statusCode": 200,
-    "body": "{\n  \"message\": \"Go Serverless v3.0! Your function executed successfully!\",\n  \"input\": \"\"\n}"
+    "body": "{\n \"message\": \"List of EC2 instances retrieved successfully!\",\n \"instances\": [{\"id\": \"i-123456sad7890abcdef0\", \"name\": \"example-instance\", \"region\": \"us-east-1\", \"status\": \"running\"}]\n}"
 }
+
 ```
