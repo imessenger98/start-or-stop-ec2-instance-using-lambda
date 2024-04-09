@@ -8,6 +8,7 @@ provider:
 functions:
   ListInstances:
     handler: src/handler/ListInstances.handler
+    url: true
 
   ToggleInstance:
     handler: src/handler/ToggleInstance.handler
