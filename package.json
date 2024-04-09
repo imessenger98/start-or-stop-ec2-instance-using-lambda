@@ -1,0 +1,19 @@
+{
+  "name": "ec2-toggle",
+  "version": "1.0.0",
+  "description": "toggle Available Ec2 instances",
+  "main": "index.js",
+  "scripts": {
+    "lint": "eslint .",
+    "format": "prettier --write ."
+  },
+  "type": "module",
+  "author": "MUHAMMED YAZEEN AN",
+  "license": "ISC",
+  "devDependencies": {
+    "serverless-offline": "^13.3.3"
+  },
+  "dependencies": {
+    "aws-sdk": "^2.1595.0"
+  }
+}

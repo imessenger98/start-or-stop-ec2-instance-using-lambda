@@ -1,0 +1,9 @@
+# package directories
+node_modules
+jspm_packages
+.vscode
+# Serverless directories
+.serverless
+
+#testFiles
+event.json

@@ -1,0 +1,23 @@
+service: Ec2Toggle
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+
+
+functions:
+  ListInstances:
+    handler: src/handler/ListInstances.handler
+
+  ToggleInstance:
+    handler: src/handler/ToggleInstance.handler
+    url: true
+  
+  StopInstancesCron:
+    handler: src/cron/stopInstances.handler
+    events:
+      - schedule: rate(1 hour)
+
+plugins:
+  - serverless-offline
