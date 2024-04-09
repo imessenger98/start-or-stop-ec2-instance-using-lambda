@@ -6,7 +6,7 @@
   "scripts": {
     "preinstall": "npm install",
     "lint": "npx eslint **/*.js --fix",
-    "force-deploy": "serverless deploy  --env dev",
+    "force-deploy": "serverless deploy  --stage dev",
     "deploy": "npm run lint && npm run force-deploy"
   },
   "type": "module",

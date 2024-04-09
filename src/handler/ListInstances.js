@@ -6,9 +6,9 @@
 import AWS from 'aws-sdk'
 
 /**
- * Asynchronously fetches and extracts data from all EC2 instances across specified regions.
- * If no regions are specified, it defaults to fetching data from all available regions.
- * The function checks each region for instances and extracts their data, including name, ID, region, and state.
+ * Get Basic details about EC2 instances in given regions.
+ * If no regions are specified, it defaults to fetching details about instances from all available regions.
+ * The function checks each region for instances and extracts basic data about the instances like name, ID, region, and state.
  *
  * @async
  * @function
@@ -19,11 +19,11 @@ export const handler = async () => {
   try {
     let regionNames = []
 
-    //all the regions that we are currently using will be given in the secrets
     if (process.env.CURRENTLY_USING_REGION && process.env.CURRENTLY_USING_REGION !== '') {
       regionNames = process.env.CURRENTLY_USING_REGION.split(',')
     } else {
-      // Get the list of all available regions.not recommended as it is slower
+      // Get the list of all regions in aws
+      // ! not recommended.
       const ec2 = new AWS.EC2()
       const regions = await ec2.describeRegions({}).promise()
       regionNames = regions.Regions.map((region) => region.RegionName)
@@ -49,7 +49,6 @@ async function listAllInstanceData(regionNames) {
   return allInstances.flat()
 }
 
-//Extract data of instances in the region.
 async function getAllInstancesOfTheRegion(regionName) {
   const ec2Region = new AWS.EC2({ region: regionName })
   try {
@@ -63,7 +62,6 @@ async function getAllInstancesOfTheRegion(regionName) {
   }
 }
 
-// Extract only the required data of instances
 function extractRequiredData({ instance, regionName }) {
   const nameTag = instance.Tags.find((tag) => tag.Key === 'Name')
   const instanceName = nameTag ? nameTag.Value : 'Unnamed'

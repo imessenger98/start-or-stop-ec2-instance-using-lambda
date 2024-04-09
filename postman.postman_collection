@@ -1,0 +1,59 @@
+{
+	"info": {
+		"_postman_id": "26025e03-0a25-463d-afa7-8d95c65c8ec3",
+		"name": "start or stop ec2 instances",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "17394307"
+	},
+	"item": [
+		{
+			"name": "ListInstances",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/dev/list-instances",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"dev",
+						"list-instances"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "StartOrStopAnInstance",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"instanceId\": \"i-0545a274304e279c6\",\r\n  \"region\": \"ap-south-1\"\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/dev/start-stop-instance",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"dev",
+						"start-stop-instance"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
