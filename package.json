@@ -7,7 +7,7 @@
     "preinstall": "npm install",
     "format": "prettier --write src/**/*.{js,jsx} --config ./.prettierrc",
     "lint": "npx eslint **/*.js --fix",
-    "force-deploy": "serverless deploy",
+    "force-deploy": "serverless deploy  --env dev",
     "deploy": "npm run format && npm run lint && npm run force-deploy"
   },
   "type": "module",
@@ -25,6 +25,7 @@
     "eslint-plugin-promise": "^6.1.1",
     "globals": "^15.0.0",
     "prettier": "3.2.5",
+    "serverless-dotenv-plugin": "^6.0.0",
     "serverless-offline": "^13.3.3"
   },
   "dependencies": {
