@@ -14,7 +14,7 @@ export const handler = async (event) => {
         if (instance.State.Name === 'running' && !(await isInUse(instance.InstanceId))) {
           await ec2Region.stopInstances({ InstanceIds: [instance.InstanceId] }).promise()
           console.log(
-            `Instance ${instance.Name} (${instance.InstanceId}) in region ${instance.Region} was stopped.`
+            `Instance ${instance?.KeyName} (${instance?.InstanceId}) in region ${instance?.Placement?.AvailabilityZone} was stopped.`
           )
         }
       }
