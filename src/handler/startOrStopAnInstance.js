@@ -1,14 +1,17 @@
 import AWS from 'aws-sdk'
 
 export const handler = async (event) => {
-  const { instanceId, region } = event
-
+  let body = event.body || event
+  if (typeof body === 'string') {
+    body = JSON.parse(event.body)
+  }
+  const { instanceId, region } = body
   if (!instanceId || !region) {
     return {
       statusCode: 400,
       body: JSON.stringify({
-        message: 'instanceId and region must be provided'
-      })
+        message: 'instanceId and region must be provided',
+      }),
     }
   }
 
@@ -22,7 +25,7 @@ export const handler = async (event) => {
     if (describeResponse.Reservations.length === 0) {
       return {
         statusCode: 404,
-        body: JSON.stringify({ message: 'Instance not found' })
+        body: JSON.stringify({ message: 'Instance not found' }),
       }
     }
 
@@ -36,7 +39,7 @@ export const handler = async (event) => {
     } else {
       return {
         statusCode: 400,
-        body: JSON.stringify({ message: 'Instance is in an invalid state' })
+        body: JSON.stringify({ message: 'Instance is in an invalid state' }),
       }
     }
 
@@ -48,17 +51,18 @@ export const handler = async (event) => {
       await ec2.stopInstances(actionParams).promise()
     }
 
+    const message = `Instance ${instanceId} in region ${region} has been ${nextState === 'running' ? 'started' : 'stopped'}`
     return {
       statusCode: 200,
-      message: `Instance ${instanceId} in region ${region} has been ${nextState === 'running' ? 'started' : 'stopped'}`
+      body: JSON.stringify(message),
     }
   } catch (error) {
     return {
       statusCode: 500,
       body: JSON.stringify({
         message: 'Error toggling instance state',
-        error: error.message
-      })
+        error: error.message,
+      }),
     }
   }
 }
