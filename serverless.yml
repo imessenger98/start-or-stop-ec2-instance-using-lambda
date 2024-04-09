@@ -4,19 +4,40 @@ frameworkVersion: '3'
 provider:
   name: aws
   runtime: nodejs18.x
+  timeout: 30
+  memorySize: 256
+  logRetentionInDays: 5
+  stage: ${opt:stage, 'dev'}
+  region: ${opt:region, 'ap-south-1'}
+  
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - ec2:DescribeRegions
+        - ec2:DescribeInstances
+        - ec2:StartInstances
+        - ec2:StopInstances
+      Resource: '*'
 
 functions:
-  # Lists all EC2 instances in a specified region, including instance name, ID, region, and status.
   ListInstances:
     handler: src/handler/ListInstances.handler
-    url: true
-  # Switches the current state of an EC2 instance from start to stop and vice versa.
-  startOrStopAnInstance :
-    handler: src/handler/startOrStopAnInstance .handler
-    url: true
-  # Checks every hour if the network activity is less than 0, and stops the server if the condition is met
+    events:
+      - http:
+          path: list-instances
+          method: get
+          cors: true
+
+  StartOrStopAnInstance:
+    handler: src/handler/StartOrStopAnInstance.handler
+    events:
+      - http:
+          path: start-stop-instance
+          method: post
+          cors: true
+
   StopInstancesCron:
-    handler: src/cron/stopInstances.handler
+    handler: src/cron/StopInstances.handler
     events:
       - schedule: rate(1 hour)
 

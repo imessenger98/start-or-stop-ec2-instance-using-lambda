@@ -4,11 +4,12 @@
   "description": "Start or stop an ec2 instance manually using aws lambda.",
   "main": "index.js",
   "scripts": {
+    "preinstall": "npm install",
     "format": "prettier --write src/**/*.{js,jsx} --config ./.prettierrc",
     "lint": "npx eslint **/*.js --fix",
     "force-deploy": "serverless deploy",
     "deploy": "npm run format && npm run lint && npm run force-deploy"
-   },
+  },
   "type": "module",
   "author": "MUHAMMED YAZEEN AN",
   "license": "ISC",
@@ -27,7 +28,6 @@
     "serverless-offline": "^13.3.3"
   },
   "dependencies": {
-    "aws-sdk": "^2.1595.0",
-    "serverless": "^3.38.0"
+    "aws-sdk": "^2.1595.0"
   }
 }
