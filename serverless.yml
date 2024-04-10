@@ -8,16 +8,18 @@ provider:
   memorySize: 256
   logRetentionInDays: 5
   stage: ${opt:stage, 'dev'}
-  region: ${opt:region, 'ap-south-1'}
-  
-  iamRoleStatements:
-    - Effect: Allow
-      Action:
-        - ec2:DescribeRegions
-        - ec2:DescribeInstances
-        - ec2:StartInstances
-        - ec2:StopInstances
-      Resource: '*'
+  region: ${opt:region, 'ap-south-1'}    
+  iam:
+      role:
+        name: Ec2Toggle-${sls:stage}-lambda-iam-role
+        statements:
+          - Effect: Allow
+            Action:
+              - ec2:DescribeRegions
+              - ec2:DescribeInstances
+              - ec2:StartInstances
+              - ec2:StopInstances
+            Resource: '*'
 
 functions:
   ListInstances:
@@ -39,7 +41,7 @@ functions:
   StopInstancesCron:
     handler: src/cron/StopInstances.handler
     events:
-      - schedule: rate(1 hour)
+      - schedule: rate(6 hours)
 
 plugins:
   - serverless-offline

@@ -9,8 +9,8 @@ brief overview of each function within the Ec2Toggle service:
     - Purpose: Switches the current state of a given EC2 instance from start to stop  an instance manually and vice versa(event include instanceId and region).
 
 - #### StopInstancesCron
-    - Purpose: Get all the instances from all the regions and check if the network activity of each instance is less than zero. If it is zero, deactivate the instance.
-    - Event: Scheduled to run every hour (rate(1 hour)).
+    - Purpose: Get all the instances from all the regions and check if the network activity of each instance is less than zero for the past 6 hours. If it is zero, deactivate the instance.
+    - Event: Scheduled to run every 6 hours.
 
 ## Usage
 
