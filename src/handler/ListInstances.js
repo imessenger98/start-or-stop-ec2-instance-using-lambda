@@ -5,6 +5,7 @@
 
 import AWS from 'aws-sdk'
 
+import { getAllRegionNames } from '../../common/utils.js'
 /**
  * Get Basic details about EC2 instances in given regions.
  * If no regions are specified, it defaults to fetching details about instances from all available regions.
@@ -17,44 +18,34 @@ import AWS from 'aws-sdk'
  */
 export const handler = async () => {
   try {
-    let regionNames = []
-
-    if (process.env.CURRENTLY_USING_REGION && process.env.CURRENTLY_USING_REGION !== '') {
-      regionNames = process.env.CURRENTLY_USING_REGION.split(',')
-    } else {
-      // Get the list of all regions in aws
-      // ! not recommended.
-      const ec2 = new AWS.EC2()
-      const regions = await ec2.describeRegions({}).promise()
-      regionNames = regions.Regions.map((region) => region.RegionName)
-    }
-
+    const regionNames = await getAllRegionNames()
     const allInstances = await listAllInstanceData(regionNames)
 
     return {
       statusCode: 200,
-      body: JSON.stringify(allInstances),
+      body: JSON.stringify(allInstances)
     }
   } catch (error) {
+    console.error(error)
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: error.message }),
+      body: JSON.stringify({ error: error.message })
     }
   }
 }
 
-async function listAllInstanceData(regionNames) {
+async function listAllInstanceData (regionNames) {
   const promises = regionNames.map((regionName) => getAllInstancesOfTheRegion(regionName))
   const allInstances = await Promise.all(promises)
   return allInstances.flat()
 }
 
-async function getAllInstancesOfTheRegion(regionName) {
+async function getAllInstancesOfTheRegion (regionName) {
   const ec2Region = new AWS.EC2({ region: regionName })
   try {
     const data = await ec2Region.describeInstances({}).promise()
     return data.Reservations.flatMap((reservation) =>
-      reservation.Instances.map((instance) => extractRequiredData({ instance, regionName })),
+      reservation.Instances.map((instance) => extractRequiredData({ instance, regionName }))
     )
   } catch (error) {
     console.error(`Error fetching instances for region ${regionName}:`, error)
@@ -62,7 +53,7 @@ async function getAllInstancesOfTheRegion(regionName) {
   }
 }
 
-function extractRequiredData({ instance, regionName }) {
+function extractRequiredData ({ instance, regionName }) {
   const nameTag = instance.Tags.find((tag) => tag.Key === 'Name')
   const instanceName = nameTag ? nameTag.Value : 'Unnamed'
 
@@ -70,6 +61,6 @@ function extractRequiredData({ instance, regionName }) {
     Name: instanceName,
     InstanceId: instance.InstanceId,
     Region: regionName,
-    State: instance.State.Name,
+    State: instance.State.Name
   }
 }

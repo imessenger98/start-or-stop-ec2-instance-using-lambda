@@ -1,28 +1,55 @@
+/*
+ * Author MUHAMMED YAZEEN AN
+ * Created on Wed Apr 10 2024
+ * Version 2
+ */
+
 import AWS from 'aws-sdk'
 
-export const handler = async (event) => {
-  const ec2 = new AWS.EC2()
-  const regions = await ec2.describeRegions({}).promise()
-  const regionNames = regions.Regions.map((region) => region.RegionName)
+import { getAllRegionNames } from '../../common/utils.js'
 
-  for (const regionName of regionNames) {
-    const ec2Region = new AWS.EC2({ region: regionName })
-    const instances = await ec2Region.describeInstances().promise()
+/**
+ *  Get all the instances from all the regions and check if the network activity of each instance is less than zero for the past 6 hours
+ * If it is zero, deactivate the instance
+ *
+ * Lambda function to check the activity of EC2 instances based on inbound and outbound packet counts.
+ * If the packet count is less than or equal to 0, the instance is considered in-active and will be stopped.
+ * It checks all instances in a given region or all regions by default.
+ * @async
+ * @function
+ */
+export const handler = async () => {
+  try {
+    const regionNames = await getAllRegionNames()
+    const mapAllRegions = regionNames.map((regionName) => handleEachRegion(regionName))
+    await Promise.allSettled(mapAllRegions)
+    console.info(`Cron job was invoked successfully at: ${new Date()}`)
+  } catch (error) {
+    console.error(error)
+  }
+}
 
-    for (const reservation of instances.Reservations) {
-      for (const instance of reservation.Instances) {
-        if (instance.State.Name === 'running' && !(await isInUse(instance.InstanceId))) {
-          await ec2Region.stopInstances({ InstanceIds: [instance.InstanceId] }).promise()
-          console.log(
-            `Instance ${instance?.KeyName} (${instance?.InstanceId}) in region ${instance?.Placement?.AvailabilityZone} was stopped.`
-          )
-        }
-      }
+async function handleEachRegion (regionName) {
+  const ec2Region = new AWS.EC2({ region: regionName })
+  const instances = await ec2Region.describeInstances().promise()
+  const allInstance = instances.Reservations.flatMap((reservation) => reservation.Instances)
+  const mapAllInstance = allInstance.map((instance) => handleEachInstances({ instance, ec2Region }))
+  await Promise.all(mapAllInstance)
+}
+
+async function handleEachInstances ({ instance, ec2Region }) {
+  if (instance.State.Name === 'running') {
+    const isCurrentlyActive = await isInstanceInUse(instance.InstanceId)
+    if (!isCurrentlyActive) {
+      await ec2Region.stopInstances({ InstanceIds: [instance.InstanceId] }).promise()
+      console.log(
+        `Instance ${instance?.KeyName || instance?.Tags?.value || 'no_name'} (${instance?.InstanceId}) in region ${instance?.Placement?.AvailabilityZone} was stopped.`
+      )
     }
   }
 }
 
-async function isInUse (instanceId) {
+async function isInstanceInUse (instanceId) {
   const cloudwatch = new AWS.CloudWatch()
   const params = {
     Namespace: 'AWS/EC2',
@@ -33,9 +60,9 @@ async function isInUse (instanceId) {
         Value: instanceId
       }
     ],
-    StartTime: new Date(Date.now() - 3600000), // 1 hour ago
+    StartTime: new Date(Date.now() - 6 * 60 * 60 * 1000), // last 6 hours
     EndTime: new Date(),
-    Period: 3600, // 1 hour
+    Period: 3600,
     Statistics: ['Sum']
   }
 
@@ -52,6 +79,6 @@ async function isInUse (instanceId) {
     return totalPacketsIn > 0 || totalPacketsOut > 0
   } catch (error) {
     console.error(`Error fetching network activity for instance ${instanceId}:`, error)
-    return false // Consider the instance as not in use if there's an error fetching the metric
+    throw error
   }
 }

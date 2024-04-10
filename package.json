@@ -4,7 +4,7 @@
   "description": "Start or stop an ec2 instance manually using aws lambda.",
   "main": "index.js",
   "scripts": {
-    "preinstall": "npm install",
+    "start":"serverless offline start --stage  dev",
     "lint": "npx eslint **/*.js --fix",
     "force-deploy": "serverless deploy  --stage dev",
     "deploy": "npm run lint && npm run force-deploy"
